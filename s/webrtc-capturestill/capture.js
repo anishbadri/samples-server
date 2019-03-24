@@ -5,6 +5,7 @@
 
   var width = 320;    // We will scale the photo width to this
   var height = 0;     // This will be computed based on the input stream
+  var clickNo = 0
 
   // |streaming| indicates whether or not we're currently streaming
   // video from the camera. Obviously, we start at false.
@@ -47,18 +48,18 @@
       
         video.setAttribute('width', width);
         video.setAttribute('height', height);
-        canvas.setAttribute('width', width);
-        canvas.setAttribute('height', height);
+        // canvas.setAttribute('width', width);
+        // canvas.setAttribute('height', height);
         streaming = true;
       }
     }, false);
 
     startbutton.addEventListener('click', function(ev){
       takepicture();
-      ev.preventDefault();
+        ev.preventDefault();
     }, false);
     
-    clearphoto();
+    // clearphoto();
   }
 
   // Fill the photo with an indication that none has been
@@ -70,7 +71,7 @@
     context.fillRect(0, 0, canvas.width, canvas.height);
 
     var data = canvas.toDataURL('image/png');
-    photo.setAttribute('src', data);
+    // photo.setAttribute('src', data);
   }
   
   // Capture a photo by fetching the current contents of the video
@@ -80,18 +81,51 @@
   // other changes before drawing it.
 
   function takepicture() {
-    var context = canvas.getContext('2d');
+    var canvasStore = newCanvas();
+    var photoOutput = insertImg();
+    console.log(canvasStore)
+    var context = canvasStore.getContext('2d');
     if (width && height) {
-      canvas.width = width;
-      canvas.height = height;
+      canvasStore.width = width;
+      canvasStore.height = height;
       context.drawImage(video, 0, 0, width, height);
     
-      var data = canvas.toDataURL('image/png');
+      var data = canvasStore.toDataURL('image/png');
+      photoOutput.setAttribute('src', data);
       photo.setAttribute('src', data);
+      $(".output").show();
+      $(photo).fadeTo('fast', .50);
+      display(data);
     } else {
       clearphoto();
     }
   }
+
+  function newCanvas() {
+    // $(storage).append()
+    var identifier = 'canvas-' + $('canvas').length;  
+    $('<canvas>').attr({
+      id : identifier
+    }).appendTo('.storage')
+    // console.log(typeof(`#${identifier}`));
+    return ($(`#${identifier}`)[0]);
+  }
+
+  function insertImg() {
+    var identifier = 'image-' + ($('canvas').length-1);
+    $('<img>').attr({
+      id: identifier
+    }).appendTo('.display');
+
+    return ($(`#${identifier}`)[0]);
+  }
+
+  function display(data) {
+    $(".display").append('<img id="Image-1"/>');
+    // $("#Image-1").setAttribute('src', data);
+  }
+
+
 
   // Set up our event listener to run the startup process
   // once loading is complete.
